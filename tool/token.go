@@ -3,6 +3,7 @@ package tool
 import (
 	"strconv"
 	"time"
+
 	"github.com/intmian/mian_go_lib/tool/cipher"
 	"github.com/pochard/commons/randstr"
 )
@@ -47,12 +48,33 @@ func (t *tokenMgr) isTokenValid(token string, id string, ip string) bool {
 	return true
 }
 
-// 创建token
-func (t *tokenMgr) createToken(id string, ip string) string {
+func makeToken(id string, ip string) string {
 	token := strconv.FormatInt(time.Now().Unix(), 10)
 	token += randstr.RandomAlphanumeric(10)
-	// sha256
-	token = cipher.s
+	tokenSha256 := cipher.Sha2562String(token)
+	return tokenSha256
+}
+
+// 创建token
+func (t *tokenMgr) createToken(id string, ip string) string {
+	token := makeToken(id, ip)
+	loopNum := 0
+	for {
+		token = makeToken(id, ip)
+		tokenValue, ok := t.tokenMap[token]
+		if !ok {
+			break
+		}
+		// 如果token过期，则重新生成
+		if tokenValue.createTime+3*24*60*60 >= time.Now().Unix() {
+			break
+		}
+		loopNum++
+		// 无法生成新的token，则返回空
+		if loopNum > 100 {
+			return ""
+		}
+	}
 	tokenDetail := &TokenDetail{
 		id:         id,
 		ip:         []string{ip},
@@ -60,4 +82,12 @@ func (t *tokenMgr) createToken(id string, ip string) string {
 	}
 	t.tokenMap[token] = tokenDetail
 	return token
+}
+
+func (t *tokenMgr) clearOutTimeToken() {
+	for k, v := range t.tokenMap {
+		if v.createTime+3*24*60*60 < time.Now().Unix() {
+			delete(t.tokenMap, k)
+		}
+	}
 }

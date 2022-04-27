@@ -20,8 +20,8 @@ github.com/golang/protobuf v1.3.3/go.mod h1:vzj43D7+SQXF/4pzW/hwtAqwc6iTitCiVSaW
 github.com/google/gofuzz v1.0.0/go.mod h1:dBl0BpW6vV/+mYPU4Po3pmUjxk6FQPldtuIdl/M65Eg=
 github.com/gorilla/css v1.0.0 h1:BQqNyPTi50JCFMTw/b67hByjMVXZRwGha6wxVGkeihY=
 github.com/gorilla/css v1.0.0/go.mod h1:Dn721qIggHpt4+EFCcTLTU/vk5ySda2ReITrtgBl60c=
-github.com/intmian/mian_go_lib v0.0.0-20220427031206-ec14976a34e0 h1:uTFJHH2E6oXNycjW5RcgH8wjkPxU9NN+6g27LFGZwI0=
-github.com/intmian/mian_go_lib v0.0.0-20220427031206-ec14976a34e0/go.mod h1:74cg1EPBrdPPYcVs4bvOXgwJ+wZIoo0xqXb03yX9DBc=
+github.com/intmian/mian_go_lib v0.0.0-20220427095609-89231b7a5e0d h1:jj4FvAS0rdFRv+qez+IT7H1l212I5H6QtBixUgXirfc=
+github.com/intmian/mian_go_lib v0.0.0-20220427095609-89231b7a5e0d/go.mod h1:74cg1EPBrdPPYcVs4bvOXgwJ+wZIoo0xqXb03yX9DBc=
 github.com/json-iterator/go v1.1.9 h1:9yzud/Ht36ygwatGx56VwCZtlI/2AD15T1X2sjSuGns=
 github.com/json-iterator/go v1.1.9/go.mod h1:KdQUCv79m/52Kvf8AW2vK1V8akMuk1QjK/uOdHXbAo4=
 github.com/leodido/go-urn v1.2.0 h1:hpXL4XnriNwQ/ABnpepYM/1vCLWNDfUNts8dX3xTG6Y=

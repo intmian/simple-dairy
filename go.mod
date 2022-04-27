@@ -4,7 +4,7 @@ go 1.18
 
 require (
 	github.com/gin-gonic/gin v1.7.7
-	github.com/intmian/mian_go_lib v0.0.0-20220427031206-ec14976a34e0
+	github.com/intmian/mian_go_lib v0.0.0-20220427095609-89231b7a5e0d
 	github.com/pochard/commons v1.1.2
 )
 
