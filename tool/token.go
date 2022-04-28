@@ -17,10 +17,11 @@ type TokenDetail struct {
 }
 
 type tokenMgr struct {
-	tokenMap map[string]*TokenDetail
+	tokenMap    map[string]*TokenDetail
+	id2tokenMap map[string]string
 }
 
-func (t *tokenMgr) isTokenValid(token string, id string, ip string) bool {
+func (t *tokenMgr) IsTokenValid(token string, id string, ip string) bool {
 	tokenDetail, ok := t.tokenMap[token]
 	if !ok {
 		return false
@@ -45,6 +46,10 @@ func (t *tokenMgr) isTokenValid(token string, id string, ip string) bool {
 	if (tokenDetail.createTime + 3*24*60*60) < time.Now().Unix() {
 		return false
 	}
+
+	if _, ok := t.id2tokenMap[id]; !ok {
+		t.id2tokenMap[id] = token
+	}
 	return true
 }
 
@@ -56,7 +61,7 @@ func makeToken(id string, ip string) string {
 }
 
 // 创建token
-func (t *tokenMgr) createToken(id string, ip string) string {
+func (t *tokenMgr) CreateToken(id string, ip string) string {
 	token := makeToken(id, ip)
 	loopNum := 0
 	for {
@@ -81,13 +86,31 @@ func (t *tokenMgr) createToken(id string, ip string) string {
 		createTime: time.Now().Unix(),
 	}
 	t.tokenMap[token] = tokenDetail
+	t.id2tokenMap[id] = token
 	return token
 }
 
-func (t *tokenMgr) clearOutTimeToken() {
+func (t *tokenMgr) ClearOutTimeToken() {
+	for k, v := range t.id2tokenMap {
+		if t.tokenMap[v].createTime+3*24*60*60 < time.Now().Unix() {
+			delete(t.id2tokenMap, k)
+		}
+	}
 	for k, v := range t.tokenMap {
 		if v.createTime+3*24*60*60 < time.Now().Unix() {
 			delete(t.tokenMap, k)
 		}
+	}
+}
+
+func (t *tokenMgr) ClearToken(token string) {
+	id := t.tokenMap[token].id
+	delete(t.id2tokenMap, id)
+	delete(t.tokenMap, token)
+}
+
+func MakeTokenMgr() *tokenMgr {
+	return &tokenMgr{
+		tokenMap: make(map[string]*TokenDetail),
 	}
 }

@@ -1,4 +1,7 @@
 {
-  "pwd_token": "",
-  "key_token": ""
+  "access_token": "",
+  "admin_token": "",
+  "read_write_token": "",
+  "account_sql_connection": "",
+  "content_sql_connection": ""
 }
