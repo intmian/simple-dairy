@@ -3,8 +3,11 @@ package tool
 import "github.com/intmian/mian_go_lib/tool/misc"
 
 type SettingData struct {
-	PwdToken string `json:"pwd_token"`
-	KeyToken string `json:"key_token"` // 文本key 通过将原生key奇数位取出后，经过两次以上256进制转换后的key
+	AccessToken          string `json:"access_token"`
+	AdminToken           string `json:"admin_token"`
+	ReadWriteToken       string `json:"read_write_token"`
+	AccountSQLConnection string `json:"account_sql_connection"`
+	ContentSQLConnection string `json:"content_sql_connection"`
 }
 
 type Setting struct {
