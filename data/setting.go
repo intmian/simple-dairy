@@ -1,11 +1,8 @@
-package tool
+package data
 
 import "github.com/intmian/mian_go_lib/tool/misc"
 
 type SettingData struct {
-	AccessToken          string `json:"access_token"`
-	AdminToken           string `json:"admin_token"`
-	ReadWriteToken       string `json:"read_write_token"`
 	AccountSQLConnection string `json:"account_sql_connection"`
 	ContentSQLConnection string `json:"content_sql_connection"`
 }

@@ -1,4 +1,4 @@
-package tool
+package account
 
 import (
 	"strconv"
@@ -8,12 +8,35 @@ import (
 	"github.com/pochard/commons/randstr"
 )
 
-const MAX_TOKEN_IP = 3 // 最多允许同一个IP登录的token数量
+const MaxTokenIp = 3 // 最多允许同一个IP登录的token数量
+
+type PermissionType int
+
+const (
+	PermissionType_None  PermissionType = iota // 默认
+	PermissionType_Admin                       // 管理员
+	PermissionType_User                        // 普通用户
+	PermissionType_RW                          // 读写
+)
+
+func getPermissionIPNum(permissionType PermissionType) int {
+	switch permissionType {
+	case PermissionType_Admin:
+	case PermissionType_User:
+		return MaxTokenIp
+	case PermissionType_RW:
+		return 1
+	default:
+		return 0
+	}
+	return 0
+}
 
 type TokenDetail struct {
 	id         string
 	ip         []string // 已登录的ip
 	createTime int64
+	permission PermissionType
 }
 
 type tokenMgr struct {
@@ -21,7 +44,7 @@ type tokenMgr struct {
 	id2tokenMap map[string]string
 }
 
-func (t *tokenMgr) IsTokenValid(token string, id string, ip string) bool {
+func (t *tokenMgr) IsTokenValid(token string, id string, ip string, permissionType PermissionType) bool {
 	tokenDetail, ok := t.tokenMap[token]
 	if !ok {
 		return false
@@ -29,6 +52,13 @@ func (t *tokenMgr) IsTokenValid(token string, id string, ip string) bool {
 	if tokenDetail.id != id {
 		return false
 	}
+
+	// 校验权限
+	if tokenDetail.permission != permissionType {
+		return false
+	}
+
+	// 校验ip
 	isExistIP := false
 	for _, v := range tokenDetail.ip {
 		if v == ip {
@@ -38,30 +68,28 @@ func (t *tokenMgr) IsTokenValid(token string, id string, ip string) bool {
 	if !isExistIP {
 		tokenDetail.ip = append(tokenDetail.ip, ip)
 	}
-	if len(tokenDetail.ip) > MAX_TOKEN_IP {
+	if len(tokenDetail.ip) > getPermissionIPNum(permissionType) {
 		return false
 	}
 
-	// 有效期仅三天
+	// 校验时间
 	if (tokenDetail.createTime + 3*24*60*60) < time.Now().Unix() {
 		return false
-	}
-
-	if _, ok := t.id2tokenMap[id]; !ok {
-		t.id2tokenMap[id] = token
 	}
 	return true
 }
 
 func makeToken(id string, ip string) string {
 	token := strconv.FormatInt(time.Now().Unix(), 10)
+	token += id
+	token += ip
 	token += randstr.RandomAlphanumeric(10)
 	tokenSha256 := cipher.Sha2562String(token)
 	return tokenSha256
 }
 
-// 创建token
-func (t *tokenMgr) CreateToken(id string, ip string) string {
+// CreateToken 创建token
+func (t *tokenMgr) CreateToken(id string, ip string, permissionType PermissionType) string {
 	token := makeToken(id, ip)
 	loopNum := 0
 	for {
@@ -84,6 +112,7 @@ func (t *tokenMgr) CreateToken(id string, ip string) string {
 		id:         id,
 		ip:         []string{ip},
 		createTime: time.Now().Unix(),
+		permission: permissionType,
 	}
 	t.tokenMap[token] = tokenDetail
 	t.id2tokenMap[id] = token
