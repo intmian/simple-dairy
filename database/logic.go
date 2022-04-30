@@ -81,9 +81,9 @@ func (d *DataBaseMgr) DBGetContentFromTime(beginTime time.Time, endTime time.Tim
 func (d *DataBaseMgr) DBGetContentYears(tag string) []int {
 	var query string
 	if tag == "" {
-		query = "select year(time) from content group by year(time)"
+		query = "select distinct year(time) from content"
 	} else {
-		query = "select distinct year(time) fulljoin content_tag on content_tag.content_id=content.id where tag=?"
+		query = "select distinct year(time) from content full join content_tag on content_tag.content_id=content.id where tag=?"
 	}
 	var years []int
 	var err error
@@ -102,9 +102,9 @@ func (d *DataBaseMgr) DBGetContentYears(tag string) []int {
 func (d *DataBaseMgr) DBGetContentMonthFromYear(year int, tag string) []int {
 	var query string
 	if tag == "" {
-		query = "select month(time) from content where year(time)=? group by month(time)"
+		query = "select distinct month(time) from content where year(time)=?"
 	} else {
-		query = "select distinct month(time) fulljoin content_tag on content_tag.content_id=content.id where tag=? and year(time)=?"
+		query = "select distinct month(time) from content full join content_tag on content_tag.content_id=content.id where tag=? and year(time)=?"
 	}
 	var months []int
 	var err error
@@ -119,13 +119,14 @@ func (d *DataBaseMgr) DBGetContentMonthFromYear(year int, tag string) []int {
 	return months
 }
 
+
 // DBGetContentDayFromYearMonth 获取当前年月的所有日期
 func (d *DataBaseMgr) DBGetContentDayFromYearMonth(year int, month int, tag string) []int {
 	var query string
 	if tag == "" {
-		query = "select day(time) from content where year(time)=? and month(time)=? group by day(time)"
+		query = "select distinct day(time) from content where year(time)=? and month(time)=?"
 	} else {
-		query = "select distinct day(time) fulljoin content_tag on content_tag.content_id=content.id where tag=? and year(time)=? and month(time)=?"
+		query = "select distinct day(time) from content full join content_tag on content_tag.content_id=content.id where tag=? and year(time)=? and month(time)=?"
 	}
 	var days []int
 	var err error
@@ -138,6 +139,27 @@ func (d *DataBaseMgr) DBGetContentDayFromYearMonth(year int, month int, tag stri
 		return nil
 	}
 	return days
+}
+
+// DBGetContentFromYearMonthDay 获取当前年月日的所有内容
+func (d *DataBaseMgr) DBGetContentFromYearMonthDay(year int, month int, day int, tag string) []*DBContent {
+	var query string
+	if tag == "" {
+		query = "select * from content where year(time)=? and month(time)=? and day(time)=?"
+	} else {
+		query = "select * from content full join content_tag on content_tag.content_id=content.id where tag=? and year(time)=? and month(time)=? and day(time)=?"
+	}
+	var contents []*DBContent
+	var err error
+	if tag == "" {
+		err = d.contentDao.Select(&contents, query, year, month, day)
+	} else {
+		err = d.contentDao.Select(&contents, query, tag, year, month, day)
+	}
+	if err != nil {
+		return nil
+	}
+	return contents
 }
 
 // DBGetContent 获取内容
